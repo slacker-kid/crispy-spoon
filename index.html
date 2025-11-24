@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Fitness</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pro-dark': '#121212',
+                        'pro-gray': '#1E1E1E',
+                        'pro-green': '#2ECC71',
+                        'pro-green-hover': '#27AE60',
+                        'pro-text': '#E0E0E0'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #121212;
+            color: #E0E0E0;
+            overflow-x: hidden;
+        }
+
+        /* --- Animations --- */
+        
+        /* Button Hover Glow */
+        .btn-glow {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-glow:hover {
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-glow:active {
+            transform: translateY(1px);
+        }
+
+        /* Nav Link Underline Animation */
+        .nav-link {
+            position: relative;
+            padding-bottom: 2px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #2ECC71;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Fade In Up Animation for Sections */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Search Input Animation */
+        .search-container input:focus {
+            border-color: #2ECC71;
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+            width: 100%;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2ECC71;
+        }
+
+        /* Mobile Menu Animation */
+        #mobile-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* Page Transitions */
+        .page-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Form styling */
+        .form-input {
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            border-color: #2ECC71;
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+            outline: none;
+        }
+
+        /* Pricing Card Checkmark */
+        .check-icon {
+            color: #2ECC71;
+            margin-right: 0.5rem;
+        }
+
+        /* Accordion Styles */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 500px; /* Arbitrary large height */
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+            color: #2ECC71;
+        }
+
+        /* Video Container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 1rem;
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Calendar Styles for Rewards */
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .calendar-day.active {
+            background-color: #2ECC71;
+            color: black;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.3);
+        }
+        .calendar-day.inactive {
+            background-color: #1E1E1E;
+            color: #555;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-pro-green selection:text-black">
+
+    <!-- Navbar -->
+    <nav class="bg-pro-dark/95 backdrop-blur-md fixed w-full z-50 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer group" onclick="showPage('home')">
+                    <i class="fa-solid fa-dumbbell text-3xl text-white mr-2 group-hover:text-pro-green transition-colors duration-300"></i>
+                    <span class="font-bold text-2xl text-white tracking-tight">Pro-Fitness</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <button onclick="showPage('home')" class="nav-link text-pro-green font-medium px-3 py-2 text-sm bg-transparent border-none cursor-pointer hover:text-white transition-colors">Home</button>
+                        <button onclick="showPage('workout')" class="nav-link text-gray-300 font-medium px-3 py-2 text-sm bg-transparent border-none cursor-pointer hover:text-white transition-colors">Workout</button>
+                        <button onclick="showPage('pricing')" class="nav-link text-gray-300 font-medium px-3 py-2 text-sm bg-transparent border-none cursor-pointer hover:text-white transition-colors">Pricing</button>
+                        <button onclick="showPage('rewards')" class="nav-link text-gray-300 font-medium px-3 py-2 text-sm bg-transparent border-none cursor-pointer hover:text-white transition-colors">Rewards</button>
+                    </div>
+                </div>
+
+                <!-- Right Side: Search & Buttons -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <!-- Search -->
+                    <div class="relative search-container group">
+                        <input type="text" placeholder="Search" class="bg-pro-gray text-gray-300 rounded-md py-1.5 px-3 pl-3 pr-10 focus:outline-none focus:ring-0 border border-gray-700 transition-all duration-300 w-48 focus:w-64 placeholder-gray-500 text-sm">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-gray-500 group-focus-within:text-pro-green transition-colors"></i>
+                        </div>
+                    </div>
+
+                    <!-- Auth Buttons -->
+                    <button onclick="showPage('login')" class="text-white hover:text-pro-green font-medium px-4 py-2 text-sm border border-gray-600 rounded-md hover:border-pro-green transition-all duration-300 btn-glow">
+                        Login
+                    </button>
+                    <button onclick="showPage('register')" class="bg-transparent text-white border border-gray-600 hover:bg-pro-green hover:border-pro-green hover:text-black font-medium px-4 py-2 rounded-md text-sm transition-all duration-300 btn-glow">
+                        Register
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="toggleMenu()" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden bg-pro-gray">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-700">
+                <button onclick="showPage('home')" class="text-pro-green block w-full text-left px-3 py-2 rounded-md text-base font-medium">Home</button>
+                <button onclick="showPage('workout')" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">Workout</button>
+                <button onclick="showPage('pricing')" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">Pricing</button>
+                <button onclick="showPage('rewards')" class="text-gray-300 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">Rewards</button>
+                <div class="mt-4 flex flex-col space-y-2 px-3">
+                     <input type="text" placeholder="Search" class="bg-black/20 text-gray-300 rounded-md py-2 px-3 border border-gray-600 focus:outline-none focus:border-pro-green w-full">
+                     <div class="flex space-x-2 mt-2">
+                        <button onclick="showPage('login')" class="flex-1 text-center py-2 border border-gray-600 rounded-md text-white hover:border-pro-green">Login</button>
+                        <button onclick="showPage('register')" class="flex-1 text-center py-2 bg-pro-green text-black font-bold rounded-md">Register</button>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="pt-20">
+
+        <!-- ================= HOME PAGE ================= -->
+        <div id="home" class="page-section active">
+            <main class="pt-10 pb-16">
+                <!-- Header Section -->
+                <section class="max-w-4xl mx-auto text-center px-4 mb-16 fade-in-up">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-pro-green mb-6 tracking-tight drop-shadow-lg">
+                        Welcome to Pro-Fitness
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
+                        Are you ready to embark on a journey of transformation and total well-being? Look no further! 
+                        <span class="text-white font-semibold">Pro-Fitness</span> is your ultimate destination for achieving your fitness goals.
+                    </p>
+                </section>
+
+                <!-- Content Split: Image & Features -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col lg:flex-row items-center lg:items-start gap-12">
+                        <!-- Left Column: Image -->
+                        <div class="w-full lg:w-5/12 fade-in-up" style="transition-delay: 200ms;">
+                            <div class="relative group">
+                                <div class="absolute inset-0 bg-pro-green rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                                <label for="hero-upload" class="cursor-pointer block relative">
+                                    <img id="hero-image-preview" src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=1000&auto=format&fit=crop" alt="Fitness Motivation" class="relative rounded-2xl shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 ease-in-out w-full object-cover h-[500px] lg:h-[600px] border border-gray-800 transform group-hover:scale-[1.02] z-10">
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl z-20 backdrop-blur-sm">
+                                        <i class="fa-solid fa-camera text-4xl text-pro-green mb-3 animate-bounce"></i>
+                                        <p class="text-white font-bold text-lg">Change Image</p>
+                                        <p class="text-gray-300 text-sm mt-1">Click to upload your own</p>
+                                    </div>
+                                    <input type="file" id="hero-upload" accept="image/*" class="hidden" onchange="updateHeroImage(event)">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Features Text -->
+                        <div class="w-full lg:w-7/12 space-y-8 fade-in-up" style="transition-delay: 400ms;">
+                            <h2 class="text-3xl md:text-4xl font-bold text-pro-green mb-8 relative inline-block">
+                                Why Choose Pro-Fitness?
+                                <span class="absolute bottom-0 left-0 w-1/3 h-1 bg-white rounded-full mt-2"></span>
+                            </h2>
+                            <div class="group hover:bg-white/5 p-4 rounded-xl transition-colors duration-300">
+                                <h3 class="text-xl font-bold text-pro-green mb-2 flex items-center gap-2"><i class="fa-solid fa-user-doctor text-sm"></i> Expert Guidance</h3>
+                                <p class="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">Our certified trainers are here to guide you every step of the way.</p>
+                            </div>
+                            <div class="group hover:bg-white/5 p-4 rounded-xl transition-colors duration-300">
+                                <h3 class="text-xl font-bold text-pro-green mb-2 flex items-center gap-2"><i class="fa-solid fa-person-running text-sm"></i> Variety of Workouts</h3>
+                                <p class="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">Experience HIIT, yoga, strength training, dance, Pilates, and more.</p>
+                            </div>
+                            <div class="group hover:bg-white/5 p-4 rounded-xl transition-colors duration-300">
+                                <h3 class="text-xl font-bold text-pro-green mb-2 flex items-center gap-2"><i class="fa-solid fa-building text-sm"></i> State-of-the-Art Facilities</h3>
+                                <p class="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">Cutting-edge gyms equipped with top-of-the-line fitness equipment.</p>
+                            </div>
+                            <div class="pt-4">
+                                <button onclick="showPage('workout')" class="bg-pro-green text-black font-bold text-lg px-8 py-3 rounded-full hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(46,204,113,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transform hover:-translate-y-1">
+                                    Start Your Journey <i class="fa-solid fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="bg-black py-8 border-t border-gray-900 mt-12 text-center text-gray-600 text-sm">
+                <p>&copy; 2024 Pro-Fitness. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- ================= WORKOUT PAGE ================= -->
+        <div id="workout" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="text-center mb-10 fade-in-up">
+                    <h2 class="text-4xl font-extrabold text-white">Exercise <span class="text-pro-green">Library</span></h2>
+                    <p class="text-gray-400 mt-2">Select a body part to view tutorials.</p>
+                </div>
+                <div class="flex flex-col lg:flex-row gap-8 min-h-[600px]">
+                    <div class="w-full lg:w-2/3">
+                        <div class="sticky top-24 bg-pro-gray rounded-3xl p-4 border border-gray-800 shadow-2xl">
+                            <div class="video-container bg-black rounded-2xl relative overflow-hidden group">
+                                <iframe id="workout-video-frame" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen class="hidden"></iframe>
+                                <div id="video-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-pro-dark">
+                                    <i class="fa-solid fa-play-circle text-6xl text-pro-green mb-4 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></i>
+                                    <h3 class="text-xl font-bold text-white mb-2">Ready to Sweat?</h3>
+                                    <p class="text-gray-400 text-sm">Select an exercise from the menu to watch the tutorial.</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 px-2">
+                                <h3 id="video-title" class="text-2xl font-bold text-white">Select an Exercise</h3>
+                                <p id="video-desc" class="text-gray-400 text-sm mt-1">Detailed instructions will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/3 space-y-3 fade-in-up" style="transition-delay: 200ms;" id="workout-menu">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+            </div>
+             <footer class="bg-black py-8 border-t border-gray-900 text-center text-gray-600 text-sm mt-12">
+                <p>&copy; 2024 Pro-Fitness. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- ================= PRICING PAGE ================= -->
+        <div id="pricing" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+                <div class="text-center mb-16 fade-in-up">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Flexible <span class="text-pro-green">Membership</span> Plans</h2>
+                    <p class="text-gray-400 text-lg max-w-2xl mx-auto">Choose the plan that fits your lifestyle. No hidden fees, cancel anytime.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- BASIC -->
+                    <div class="bg-pro-gray border border-gray-800 rounded-3xl p-8 flex flex-col hover:border-gray-600 transition-all duration-300 hover:transform hover:-translate-y-2 shadow-xl fade-in-up" style="transition-delay: 100ms;">
+                        <div class="mb-6"><h3 class="text-2xl font-bold text-white mb-2">Basic</h3><p class="text-gray-400 text-sm">For the casual gym-goer</p></div>
+                        <div class="mb-8"><span class="text-4xl font-bold text-white">$29</span><span class="text-gray-500">/month</span></div>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            <li class="flex items-center text-gray-300 text-sm"><i class="fa-solid fa-check check-icon"></i> Access to gym floor</li>
+                            <li class="flex items-center text-gray-300 text-sm"><i class="fa-solid fa-check check-icon"></i> Locker room access</li>
+                        </ul>
+                        <button class="w-full border border-pro-green text-pro-green hover:bg-pro-green hover:text-black font-bold py-3 rounded-xl transition-all duration-300" onclick="showPage('register')">Choose Basic</button>
+                    </div>
+                    <!-- PRO -->
+                    <div class="bg-pro-gray border-2 border-pro-green rounded-3xl p-8 flex flex-col relative transform md:-translate-y-4 shadow-[0_0_20px_rgba(46,204,113,0.15)] hover:shadow-[0_0_30px_rgba(46,204,113,0.3)] transition-all duration-300 fade-in-up" style="transition-delay: 200ms;">
+                        <div class="absolute top-0 right-0 bg-pro-green text-black text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">POPULAR</div>
+                        <div class="mb-6"><h3 class="text-2xl font-bold text-white mb-2">Pro Athlete</h3><p class="text-gray-400 text-sm">Best for serious results</p></div>
+                        <div class="mb-8"><span class="text-5xl font-bold text-pro-green">$59</span><span class="text-gray-500">/month</span></div>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            <li class="flex items-center text-white text-sm font-medium"><i class="fa-solid fa-check check-icon"></i> 24/7 Gym Access</li>
+                            <li class="flex items-center text-white text-sm font-medium"><i class="fa-solid fa-check check-icon"></i> All Group Classes Included</li>
+                        </ul>
+                        <button class="w-full bg-pro-green text-black hover:bg-white font-bold py-4 rounded-xl transition-all duration-300 shadow-lg" onclick="showPage('register')">Get Started Pro</button>
+                    </div>
+                    <!-- ELITE -->
+                    <div class="bg-pro-gray border border-gray-800 rounded-3xl p-8 flex flex-col hover:border-gray-600 transition-all duration-300 hover:transform hover:-translate-y-2 shadow-xl fade-in-up" style="transition-delay: 300ms;">
+                        <div class="mb-6"><h3 class="text-2xl font-bold text-white mb-2">Elite</h3><p class="text-gray-400 text-sm">Full access & VIP treatment</p></div>
+                        <div class="mb-8"><span class="text-4xl font-bold text-white">$99</span><span class="text-gray-500">/month</span></div>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            <li class="flex items-center text-gray-300 text-sm"><i class="fa-solid fa-check check-icon"></i> All Pro Features</li>
+                            <li class="flex items-center text-gray-300 text-sm"><i class="fa-solid fa-check check-icon"></i> Unlimited Tanning</li>
+                        </ul>
+                        <button class="w-full border border-gray-600 text-white hover:border-pro-green hover:text-pro-green font-bold py-3 rounded-xl transition-all duration-300" onclick="showPage('register')">Go Elite</button>
+                    </div>
+                </div>
+            </div>
+             <footer class="bg-black py-8 border-t border-gray-900 text-center text-gray-600 text-sm">
+                <p>&copy; 2024 Pro-Fitness. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- ================= REWARDS PAGE (New) ================= -->
+        <div id="rewards" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+                <div class="text-center mb-16 fade-in-up">
+                    <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Your <span class="text-pro-green">Rewards</span></h2>
+                    <p class="text-gray-400 text-lg max-w-2xl mx-auto">Stay consistent, build your streak, and unlock exclusive perks.</p>
+                </div>
+
+                <!-- Stats Dashboard -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                    <!-- Current Streak Card -->
+                    <div class="bg-pro-gray border border-gray-800 rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden fade-in-up" style="transition-delay: 100ms;">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-pro-green/10 rounded-full blur-3xl"></div>
+                        <div class="text-center z-10">
+                            <i class="fa-solid fa-fire text-6xl text-orange-500 mb-4 animate-pulse"></i>
+                            <h3 class="text-5xl font-extrabold text-white">5 <span class="text-xl text-gray-400">Days</span></h3>
+                            <p class="text-pro-green font-bold mt-2">Current Streak</p>
+                            <p class="text-gray-500 text-sm mt-4">2 more days to reach Gold Status!</p>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Calendar Card -->
+                    <div class="lg:col-span-2 bg-pro-gray border border-gray-800 rounded-3xl p-8 fade-in-up" style="transition-delay: 200ms;">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-white">Attendance History</h3>
+                            <span class="text-sm text-gray-400">This Week</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-4">
+                            <!-- Days -->
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Mon</span>
+                                <div class="calendar-day active"><i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Tue</span>
+                                <div class="calendar-day active"><i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Wed</span>
+                                <div class="calendar-day active"><i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Thu</span>
+                                <div class="calendar-day active"><i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Fri</span>
+                                <div class="calendar-day active"><i class="fa-solid fa-check"></i></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Sat</span>
+                                <div class="calendar-day inactive"></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="block text-gray-500 text-xs mb-2">Sun</span>
+                                <div class="calendar-day inactive"></div>
+                            </div>
+                        </div>
+                        <div class="mt-6 bg-black/30 rounded-xl p-4 flex items-start gap-3">
+                            <i class="fa-solid fa-circle-info text-pro-green mt-1"></i>
+                            <p class="text-gray-400 text-sm">
+                                Check in at the front desk to log your attendance. Maintaining a 7-day streak unlocks premium coupons.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coupons Section -->
+                <h3 class="text-3xl font-bold text-white mb-8 border-l-4 border-pro-green pl-4 fade-in-up">Available Rewards</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Coupon 1: Available -->
+                    <div class="bg-pro-gray rounded-2xl border border-gray-800 p-6 relative group hover:border-pro-green transition-colors duration-300 fade-in-up" style="transition-delay: 300ms;">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="bg-pro-green/20 text-pro-green p-3 rounded-xl">
+                                <i class="fa-solid fa-bottle-water text-xl"></i>
+                            </div>
+                            <span class="bg-pro-green text-black text-xs font-bold px-2 py-1 rounded">AVAILABLE</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">15% Off Supplements</h4>
+                        <p class="text-gray-400 text-sm mb-6">Valid on any protein powder or pre-workout purchase in-store.</p>
+                        <button onclick="claimCoupon(this)" class="w-full py-3 rounded-lg font-bold bg-white text-black hover:bg-pro-green transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(46,204,113,0.4)]">
+                            Claim Reward
+                        </button>
+                    </div>
+
+                    <!-- Coupon 2: Available -->
+                    <div class="bg-pro-gray rounded-2xl border border-gray-800 p-6 relative group hover:border-pro-green transition-colors duration-300 fade-in-up" style="transition-delay: 400ms;">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="bg-blue-500/20 text-blue-400 p-3 rounded-xl">
+                                <i class="fa-solid fa-shirt text-xl"></i>
+                            </div>
+                            <span class="bg-pro-green text-black text-xs font-bold px-2 py-1 rounded">AVAILABLE</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Free Pro-Fitness Tee</h4>
+                        <p class="text-gray-400 text-sm mb-6">Get a free limited edition t-shirt with your next renewal.</p>
+                        <button onclick="claimCoupon(this)" class="w-full py-3 rounded-lg font-bold bg-white text-black hover:bg-pro-green transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(46,204,113,0.4)]">
+                            Claim Reward
+                        </button>
+                    </div>
+
+                    <!-- Coupon 3: Locked -->
+                    <div class="bg-pro-gray rounded-2xl border border-gray-800 p-6 relative opacity-75 grayscale hover:grayscale-0 transition-all duration-500 fade-in-up" style="transition-delay: 500ms;">
+                        <div class="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center rounded-2xl backdrop-blur-[1px]">
+                            <i class="fa-solid fa-lock text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-white font-bold text-sm">Requires 7-Day Streak</p>
+                        </div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="bg-purple-500/20 text-purple-400 p-3 rounded-xl">
+                                <i class="fa-solid fa-user-clock text-xl"></i>
+                            </div>
+                            <span class="bg-gray-700 text-gray-300 text-xs font-bold px-2 py-1 rounded">LOCKED</span>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Free PT Session</h4>
+                        <p class="text-gray-400 text-sm mb-6">One complimentary 60-minute session with a master trainer.</p>
+                        <button disabled class="w-full py-3 rounded-lg font-bold bg-gray-700 text-gray-400 cursor-not-allowed">
+                            Keep Working Out
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+             <footer class="bg-black py-8 border-t border-gray-900 text-center text-gray-600 text-sm">
+                <p>&copy; 2024 Pro-Fitness. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- ================= LOGIN PAGE ================= -->
+        <div id="login" class="page-section">
+            <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
+                <div class="bg-pro-gray/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden w-full max-w-5xl flex flex-col md:flex-row min-h-[600px] animate-fade-in">
+                    <!-- Left Side: Image -->
+                    <div class="w-full md:w-1/2 relative bg-black">
+                        <div class="absolute inset-0 bg-gradient-to-t from-pro-dark via-transparent to-transparent z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover grayscale opacity-80" alt="Gym Motivation">
+                        <div class="absolute bottom-10 left-10 z-20">
+                            <h2 class="text-3xl font-bold text-white mb-2">Welcome Back</h2>
+                            <p class="text-pro-green">Keep pushing your limits.</p>
+                        </div>
+                    </div>
+                    <!-- Right Side: Login Form -->
+                    <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <div class="text-center mb-8">
+                            <i class="fa-solid fa-dumbbell text-4xl text-pro-green mb-4"></i>
+                            <h2 class="text-3xl font-bold text-white">Member Login</h2>
+                        </div>
+                        <form onsubmit="event.preventDefault();" class="space-y-6">
+                            <div><label class="block text-gray-400 text-sm font-bold mb-2">Email</label><input class="form-input w-full rounded-lg py-3 px-3" type="email" placeholder="john@example.com"></div>
+                            <div><label class="block text-gray-400 text-sm font-bold mb-2">Password</label><input class="form-input w-full rounded-lg py-3 px-3" type="password" placeholder="••••••••"></div>
+                            <button class="w-full bg-pro-green hover:bg-white hover:text-black text-black font-bold py-3 rounded-lg shadow-[0_0_15px_rgba(46,204,113,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all duration-300">Sign In</button>
+                        </form>
+                         <div class="mt-8 text-center"><p class="text-gray-400">Don't have an account? <button onclick="showPage('register')" class="text-pro-green font-bold hover:underline ml-1">Register Now</button></p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= REGISTER PAGE ================= -->
+        <div id="register" class="page-section">
+            <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4">
+                <div class="bg-pro-gray/50 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-800 overflow-hidden w-full max-w-5xl flex flex-col md:flex-row-reverse min-h-[600px]">
+                     <!-- Right Side: Image -->
+                     <div class="w-full md:w-1/2 relative bg-black">
+                        <div class="absolute inset-0 bg-gradient-to-t from-pro-dark via-transparent to-transparent z-10"></div>
+                        <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover grayscale opacity-80" alt="Gym Dedication">
+                        <div class="absolute bottom-10 left-10 z-20">
+                            <h2 class="text-3xl font-bold text-white mb-2">Join the Elite</h2>
+                            <p class="text-pro-green">Transform your body, transform your life.</p>
+                        </div>
+                    </div>
+                    <!-- Left Side: Register Form -->
+                    <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <div class="text-center mb-8">
+                            <h2 class="text-3xl font-bold text-white">Create Account</h2>
+                        </div>
+                        <form onsubmit="event.preventDefault();" class="space-y-4">
+                            <div class="flex gap-4">
+                                <div class="w-1/2"><label class="block text-gray-400 text-sm font-bold mb-2">First Name</label><input class="form-input w-full rounded-lg py-3 px-3" type="text" placeholder="John"></div>
+                                <div class="w-1/2"><label class="block text-gray-400 text-sm font-bold mb-2">Last Name</label><input class="form-input w-full rounded-lg py-3 px-3" type="text" placeholder="Doe"></div>
+                            </div>
+                            <div><label class="block text-gray-400 text-sm font-bold mb-2">Email</label><input class="form-input w-full rounded-lg py-3 px-3" type="email" placeholder="john@example.com"></div>
+                            <div><label class="block text-gray-400 text-sm font-bold mb-2">Password</label><input class="form-input w-full rounded-lg py-3 px-3" type="password"></div>
+                            <button class="w-full bg-white hover:bg-pro-green hover:text-black text-black font-bold py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:-translate-y-1 mt-2">Create Account</button>
+                        </form>
+                        <div class="mt-8 text-center"><p class="text-gray-400">Already a member? <button onclick="showPage('login')" class="text-pro-green font-bold hover:underline ml-1">Sign In</button></p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        // --- Workout Data & Logic ---
+        const workoutData = {
+            shoulders: {
+                label: "Shoulders",
+                icon: "fa-solid fa-person-arrows-ol",
+                subparts: [
+                    { name: "Front Delt", videoId: "h-g8GjJbV4U", desc: "Target your anterior deltoids with controlled front raises." },
+                    { name: "Side Delt", videoId: "PZg-36lZ0m4", desc: "Build width with proper lateral raise form." },
+                    { name: "Rear Delt", videoId: "2t21H8b4h4U", desc: "Essential for posture and shoulder health." }
+                ]
+            },
+            chest: {
+                label: "Chest",
+                icon: "fa-solid fa-child-reaching",
+                subparts: [
+                    { name: "Upper Chest", videoId: "2jW5hXk_i2k", desc: "Incline movements to fill out the upper pecs." },
+                    { name: "Middle Chest", videoId: "vcBig73xpE0", desc: "Standard press for overall mass." },
+                    { name: "Lower Chest", videoId: "xK9L2H8_k4I", desc: "Dips and declines for a defined lower sweep." }
+                ]
+            },
+            back: {
+                label: "Back",
+                icon: "fa-solid fa-universal-access",
+                subparts: [
+                    { name: "Lats (Width)", videoId: "CAwf7n6Luuc", desc: "Pullups and pulldowns for that V-taper." },
+                    { name: "Traps (Thickness)", videoId: "J2z_aQj-3vE", desc: "Heavy shrugs and deadlifts." },
+                    { name: "Lower Back", videoId: "ph3pddpKzzw", desc: "Strengthen your core and posterior chain." }
+                ]
+            },
+            legs: {
+                label: "Legs",
+                icon: "fa-solid fa-person-walking",
+                subparts: [
+                    { name: "Quads", videoId: "1-Yuq9pD7QE", desc: "Squats and extensions for massive thighs." },
+                    { name: "Hamstrings", videoId: "Fk3-U_x1j38", desc: "Curls and RDLs for back-of-leg development." },
+                    { name: "Calves", videoId: "Facd5V_g_Yc", desc: "Don't skip them! High reps and full range." }
+                ]
+            },
+            arms: {
+                label: "Arms",
+                icon: "fa-solid fa-hand-fist",
+                subparts: [
+                    { name: "Biceps", videoId: "kwG2ipFRgfo", desc: "Curls for the girls (and boys)." },
+                    { name: "Triceps", videoId: "nRiJVZDpdL0", desc: "Pushdowns and extensions make up 2/3 of your arm." }
+                ]
+            }
+        };
+
+        function renderWorkoutMenu() {
+            const menuContainer = document.getElementById('workout-menu');
+            if(!menuContainer) return;
+            menuContainer.innerHTML = ''; // Clear existing
+
+            for (const [key, category] of Object.entries(workoutData)) {
+                // Create Accordion Item
+                const item = document.createElement('div');
+                item.className = 'accordion-item bg-pro-gray border border-gray-800 rounded-xl overflow-hidden hover:border-gray-600 transition-colors duration-300';
+                
+                // Header
+                const header = document.createElement('button');
+                header.className = 'w-full flex items-center justify-between p-4 text-left focus:outline-none';
+                header.onclick = () => toggleAccordion(item);
+                
+                header.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="bg-gray-800 p-2 rounded-lg text-pro-green">
+                            <i class="${category.icon}"></i>
+                        </div>
+                        <span class="font-bold text-white text-lg">${category.label}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-gray-500 accordion-icon"></i>
+                `;
+
+                // Content (Subparts)
+                const content = document.createElement('div');
+                content.className = 'accordion-content bg-black/20';
+                
+                const subList = document.createElement('div');
+                subList.className = 'p-2 space-y-1';
+
+                category.subparts.forEach(sub => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-pro-green/10 hover:text-pro-green transition-all duration-200 text-sm font-medium flex items-center justify-between group';
+                    btn.innerHTML = `
+                        <span>${sub.name}</span>
+                        <i class="fa-solid fa-play text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    `;
+                    btn.onclick = (e) => {
+                        e.stopPropagation(); // Prevent accordion toggle
+                        playVideo(sub.videoId, sub.name, sub.desc);
+                        
+                        // Highlight active sub-button
+                        document.querySelectorAll('.accordion-content button').forEach(b => b.classList.remove('bg-pro-green/20', 'text-pro-green'));
+                        btn.classList.add('bg-pro-green/20', 'text-pro-green');
+                    };
+                    subList.appendChild(btn);
+                });
+
+                content.appendChild(subList);
+                item.appendChild(header);
+                item.appendChild(content);
+                menuContainer.appendChild(item);
+            }
+        }
+
+        function toggleAccordion(item) {
+            const allItems = document.querySelectorAll('.accordion-item');
+            allItems.forEach(i => {
+                if (i !== item) i.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        }
+
+        function playVideo(id, title, desc) {
+            const frame = document.getElementById('workout-video-frame');
+            const placeholder = document.getElementById('video-placeholder');
+            const titleEl = document.getElementById('video-title');
+            const descEl = document.getElementById('video-desc');
+
+            frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+            
+            frame.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            titleEl.textContent = title;
+            descEl.textContent = desc;
+        }
+
+        // --- Coupon Logic ---
+        function claimCoupon(btn) {
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Code Copied!';
+            btn.classList.remove('bg-white', 'text-black', 'hover:bg-pro-green');
+            btn.classList.add('bg-pro-green', 'text-black', 'cursor-default');
+            
+            // Simulate clipboard copy
+            // navigator.clipboard.writeText("PRO-FIT-2024");
+            
+            setTimeout(() => {
+                btn.innerHTML = 'Apply at Checkout <i class="fa-solid fa-arrow-right ml-2"></i>';
+            }, 1500);
+        }
+
+        // Initialize Menu
+        renderWorkoutMenu();
+
+        // --- Image Upload ---
+        function updateHeroImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('hero-image-preview');
+                    preview.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+                setTimeout(() => {
+                    if(!section.classList.contains('active')) {
+                        section.style.display = 'none';
+                    }
+                }, 500);
+            });
+
+            const target = document.getElementById(pageId);
+            target.style.display = 'block';
+            
+            setTimeout(() => {
+                target.classList.add('active');
+            }, 50);
+
+            document.getElementById('mobile-menu').classList.remove('open');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('open');
+        }
+
+        // Animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const fadeElements = document.querySelectorAll('.fade-in-up');
+            fadeElements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
