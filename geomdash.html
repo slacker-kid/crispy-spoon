@@ -76,6 +76,7 @@
             background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(20,20,40,0.95));
             backdrop-filter: blur(10px);
             pointer-events: auto;
+            padding: 20px;
         }
 
         .logo {
@@ -96,14 +97,19 @@
             gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 800px;
+            max-width: 900px;
+            width: 100%;
         }
 
         .level-card {
             background: var(--glass);
             border: 2px solid rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            width: 220px;
+            padding: 20px;
+            /* Responsive Widths */
+            width: 200px;
+            flex: 1 1 200px; /* Grow and shrink, base 200px */
+            max-width: 300px;
+            
             border-radius: 12px;
             cursor: pointer;
             transition: transform 0.2s, border-color 0.2s, background 0.2s;
@@ -132,8 +138,8 @@
         .level-card.medium::before { background: #c084fc; }
         .level-card.hard::before { background: #f87171; }
 
-        .level-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; margin-top: 10px; }
-        .level-diff { font-size: 0.8rem; font-family: 'Roboto', sans-serif; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase;}
+        .level-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .level-diff { font-size: 0.75rem; font-family: 'Roboto', sans-serif; opacity: 0.7; letter-spacing: 1px; text-transform: uppercase;}
         
         .level-card.easy .level-title { color: #4ade80; }
         .level-card.medium .level-title { color: #c084fc; }
@@ -179,21 +185,23 @@
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
             pointer-events: auto;
+            text-align: center;
         }
 
         .menu-btn {
             background: transparent;
             border: 2px solid white;
             color: white;
-            padding: 15px 50px;
+            padding: 15px 40px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin: 10px;
             cursor: pointer;
             border-radius: 4px;
             transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 2px;
+            min-width: 200px;
         }
 
         .menu-btn:hover {
@@ -203,30 +211,17 @@
             transform: scale(1.05);
         }
 
-        .death-title {
-            font-size: 4rem;
-            color: #ff3333;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        .death-title, .pause-title, .victory-title {
+            font-size: 3.5rem;
             font-weight: 900;
-            letter-spacing: 5px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            letter-spacing: 4px;
         }
 
-        .pause-title {
-            font-size: 4rem;
-            color: #ffff33;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
-            font-weight: 900;
-        }
-
-        .victory-title {
-             font-size: 4rem;
-            color: #4ade80;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(74, 222, 128, 0.5);
-            font-weight: 900;
-        }
+        .death-title { color: #ff3333; text-shadow: 0 0 30px rgba(255, 0, 0, 0.5); }
+        .pause-title { color: #ffff33; text-shadow: 0 0 30px rgba(255, 255, 0, 0.5); }
+        .victory-title { color: #4ade80; text-shadow: 0 0 30px rgba(74, 222, 128, 0.5); }
 
         /* Animations */
         @keyframes pulse {
@@ -235,12 +230,27 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Mobile specific adjustments */
+        /* Responsive Breakpoints */
         @media (max-width: 768px) {
-            .logo { font-size: 2.5rem; }
-            .level-card { width: 90%; margin: 5px 0; }
-            .progress-container { width: 80%; }
-            .menu-btn { padding: 12px 30px; font-size: 1rem; }
+            .logo { font-size: 2.5rem; margin-bottom: 1.5rem; }
+            .level-select { gap: 10px; }
+            .level-card { padding: 15px; }
+            .level-title { font-size: 1.1rem; }
+            
+            .progress-container { width: 70%; }
+            
+            .death-title, .pause-title, .victory-title { font-size: 2.5rem; }
+            .menu-btn { padding: 12px 30px; font-size: 0.9rem; min-width: 160px; margin: 8px; }
+            
+            .attempt-counter { font-size: 1.2rem; }
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 2rem; }
+            .level-card { width: 100%; flex: 1 1 100%; max-width: 100%; }
+            .progress-container { width: 90%; top: 60px; } /* Move below attempts */
+            #hud { flex-direction: column; }
+            .menu-btn { width: 80%; }
         }
     </style>
 </head>
@@ -266,8 +276,8 @@
                 <div class="level-diff">HARD • EXTREME SPEED</div>
             </div>
         </div>
-        <div style="margin-top: 40px; font-family: Roboto; font-size: 0.9rem; opacity: 0.6; animation: pulse 1s infinite alternate;">
-            TAP, CLICK, or SPACE to JUMP
+        <div style="margin-top: 40px; font-family: Roboto; font-size: 0.9rem; opacity: 0.6; animation: pulse 1s infinite alternate; text-align: center;">
+            TAP SCREEN, CLICK, or SPACE to JUMP
         </div>
     </div>
 
@@ -277,7 +287,7 @@
         <div class="progress-container">
             <div id="progress-bar" class="progress-bar"></div>
         </div>
-        <div style="position: absolute; top: 20px; right: 20px; cursor: pointer; padding: 10px;" onclick="togglePause()">
+        <div style="position: absolute; top: 20px; right: 20px; cursor: pointer; padding: 10px; z-index: 100;" onclick="togglePause()">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 0 5px black);"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </div>
     </div>
@@ -312,10 +322,11 @@
 /**
  * GEOMETRY DASH LITE - CORE ENGINE
  * * Features:
- * - High DPI (Retina) Canvas Rendering
- * - Web Audio API Synthesizer (No external assets)
- * - Procedural Level Generation w/ Pattern Matching
- * - Physics: Fixed Timestep for consistent speed on 60hz/120hz/144hz
+ * - Responsive Rendering (Adapts to Mobile/Desktop)
+ * - Fixed Timestep Physics (60hz logic on any screen)
+ * - Procedural Level Generation
+ * - Web Audio API Synthesis
+ * - Double Jump Mechanic
  */
 
 // --- Constants & Config ---
@@ -323,7 +334,7 @@ const GRAVITY = 1.5;
 const JUMP_FORCE = -19.0;
 const PAD_JUMP_FORCE = -24;
 const TILE_SIZE = 50; 
-const CAMERA_OFFSET_X = -250; 
+// Removed fixed CAMERA_OFFSET_X, using dynamic playerScreenX instead
 
 // --- Audio System (Web Audio API) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -339,7 +350,6 @@ class SoundSynth {
         osc.connect(gain);
         gain.connect(masterGain);
         
-        // Fast pitch envelope for snappy jump sound
         osc.type = 'sine';
         osc.frequency.setValueAtTime(300, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
@@ -349,6 +359,21 @@ class SoundSynth {
         
         osc.start();
         osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    static playDoubleJump() {
+         if(audioCtx.state === 'suspended') audioCtx.resume();
+         const osc = audioCtx.createOscillator();
+         const gain = audioCtx.createGain();
+         osc.connect(gain);
+         gain.connect(masterGain);
+         osc.type = 'sine';
+         osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+         osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.1);
+         gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+         gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+         osc.start();
+         osc.stop(audioCtx.currentTime + 0.1);
     }
 
     static playDeath() {
@@ -415,7 +440,7 @@ function startMusic(bpm) {
             const nGain = audioCtx.createGain();
             noise.connect(nGain);
             nGain.connect(masterGain);
-            noise.type = 'square'; // Simulated noise
+            noise.type = 'square';
             noise.frequency.setValueAtTime(800, audioCtx.currentTime);
             noise.frequency.linearRampToValueAtTime(200, audioCtx.currentTime + 0.05);
             nGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
@@ -424,11 +449,9 @@ function startMusic(bpm) {
             noise.stop(audioCtx.currentTime + 0.05);
         }
         
-        // Visual Pulse
         game.pulse(beatCount % 4 === 0 ? 1.02 : 1.01);
-        
         beatCount++;
-    }, interval / 2); // 8th notes
+    }, interval / 2); 
 }
 
 function stopMusic() {
@@ -485,7 +508,7 @@ class Player {
         this.color = "#FFD700"; 
         this.trail = [];
         this.jumpCount = 0;
-        this.maxJumps = 2;
+        this.maxJumps = 2; // Double Jump enabled
     }
 
     update() {
@@ -497,10 +520,9 @@ class Player {
 
         // Rotation logic
         if (!this.onGround) {
-            // Spin faster if jump pad was used
             this.rotation += 6 * Math.sign(this.gravity);
         } else {
-            // Snap to nearest 90 degrees
+            // Snap rotation
             const mod = this.rotation % 90;
             if (mod !== 0) {
                 if (mod > 45 || mod < -45) {
@@ -508,8 +530,6 @@ class Player {
                 } else {
                     this.rotation -= mod * 0.3;
                 }
-                
-                // Clean up float errors
                 if (Math.abs(mod) < 0.5) this.rotation = Math.round(this.rotation / 90) * 90;
             }
         }
@@ -532,23 +552,9 @@ class Player {
             this.onGround = false;
             this.jumpCount++;
             
-            // Different pitch for double jump
             if (this.jumpCount > 1) {
-                 // Creating a slightly higher pitched sound for the second jump
-                 if(audioCtx.state === 'suspended') audioCtx.resume();
-                 const osc = audioCtx.createOscillator();
-                 const gain = audioCtx.createGain();
-                 osc.connect(gain);
-                 gain.connect(masterGain);
-                 osc.type = 'sine';
-                 osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-                 osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.1);
-                 gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                 osc.start();
-                 osc.stop(audioCtx.currentTime + 0.1);
-                 
-                 game.createParticles(this.x + this.w/2, this.y + this.h, 5, "#00f2ff"); // Blue particles for double jump
+                SoundSynth.playDoubleJump();
+                game.createParticles(this.x + this.w/2, this.y + this.h, 5, "#00f2ff"); 
             } else {
                 SoundSynth.playJump();
                 game.createParticles(this.x + this.w/2, this.y + this.h, 8, "#fff");
@@ -559,9 +565,7 @@ class Player {
     forceJump(force) {
         this.vy = force * Math.sign(this.gravity);
         this.onGround = false;
-        this.jumpCount = 0; // Pad jumps usually reset or don't consume jump count in platformers
-        // Reset rotation to ensure smooth spin
-        // this.rotation = Math.round(this.rotation / 90) * 90; 
+        this.jumpCount = 0; 
     }
 
     draw(ctx) {
@@ -574,7 +578,6 @@ class Player {
             ctx.rotate(t.r * Math.PI / 180);
             ctx.fillStyle = this.color;
             ctx.globalAlpha = t.alpha;
-            // Draw slightly smaller for trail effect
             ctx.fillRect(-this.w/2 + 5, -this.h/2 + 5, this.w - 10, this.h - 10);
             t.alpha -= 0.05;
             ctx.restore();
@@ -586,19 +589,16 @@ class Player {
         ctx.translate(this.x + this.w/2, this.y + this.h/2);
         ctx.rotate(this.rotation * Math.PI / 180);
         
-        // Main Body
         const gradient = ctx.createLinearGradient(-this.w/2, -this.h/2, this.w/2, this.h/2);
         gradient.addColorStop(0, this.color);
         gradient.addColorStop(1, '#ffaa00');
         ctx.fillStyle = gradient;
         ctx.fillRect(-this.w/2, -this.h/2, this.w, this.h);
         
-        // Border
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3;
         ctx.strokeRect(-this.w/2, -this.h/2, this.w, this.h);
         
-        // Face
         ctx.fillStyle = "black";
         ctx.fillRect(4, -10, 8, 8); 
         ctx.fillRect(16, -5, 10, 10); 
@@ -611,11 +611,8 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-
+        
         this.player = new Player();
-        this.camera = { x: 0, y: 0 };
         this.particles = [];
         this.obstacles = [];
         this.frameCount = 0;
@@ -623,22 +620,20 @@ class Game {
         
         this.level = null;
         this.attempt = 1;
-        this.floorY = 0; 
+        this.playerScreenX = 250; // Default, updated in resize
+        this.floorBaseY = 0; 
 
-        // Time Accumulator for Fixed Timestep
+        // Physics
         this.lastTime = 0;
         this.accumulator = 0;
         
-        // Input Handling
+        // Input
         this.inputActive = false;
         window.addEventListener('keydown', (e) => this.handleInput(e.code, true));
         window.addEventListener('keyup', (e) => this.handleInput(e.code, false));
         
-        // Global touch handler (click anywhere to jump)
         const touchHandler = (e) => { 
-            // Avoid double firing if touching UI buttons
             if (e.target.tagName === 'BUTTON' || e.target.closest('.level-card')) return;
-
             e.preventDefault(); 
             this.handleInput('Space', e.type === 'touchstart' || e.type === 'mousedown'); 
         };
@@ -649,32 +644,41 @@ class Game {
 
         this.pulseScale = 1.0;
         
+        // Initial Resize
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+        
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     }
 
     resize() {
         const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = window.innerWidth * dpr;
-        this.canvas.height = window.innerHeight * dpr;
-        this.canvas.style.width = window.innerWidth + 'px';
-        this.canvas.style.height = window.innerHeight + 'px';
-        this.ctx.scale(dpr, dpr);
-        
-        // Screen logical dimensions
         this.screenWidth = window.innerWidth;
         this.screenHeight = window.innerHeight;
-        this.floorBaseY = this.screenHeight - (TILE_SIZE * 3.5); 
+
+        this.canvas.width = this.screenWidth * dpr;
+        this.canvas.height = this.screenHeight * dpr;
+        this.canvas.style.width = this.screenWidth + 'px';
+        this.canvas.style.height = this.screenHeight + 'px';
+        this.ctx.scale(dpr, dpr);
+        
+        // Responsive Layout Calculation
+        // Player Position: 25% from left, capped at 250px max for consistency
+        this.playerScreenX = Math.min(250, this.screenWidth * 0.25);
+        if (this.screenWidth < 500) this.playerScreenX = this.screenWidth * 0.2; // tighter on mobile
+        
+        // Floor Position: Leave space at bottom, but ensure we see enough sky
+        // ~70-75% down the screen
+        this.floorBaseY = Math.min(this.screenHeight - 150, this.screenHeight * 0.75);
     }
     
     handleInput(code, isPressed) {
-        // Pause Toggle
         if ((code === 'Escape' || code === 'KeyP') && isPressed) {
             this.togglePause();
             return;
         }
         
-        // Jump Action
         if (code === 'Space' || code === 'ArrowUp' || code === 'Click') {
             if (this.state === 'PLAYING') {
                 if (isPressed) {
@@ -704,7 +708,7 @@ class Game {
             {
                 name: "Stereo Bound",
                 colors: { bg: "#70c5ce", ground: "#007d4b", obj: "#00ff00", spike: "#111" },
-                speed: 8.5, // Slightly slower for better control
+                speed: 8.5,
                 bpm: 130,
             },
             {
@@ -725,7 +729,6 @@ class Game {
         this.generateLevelData(index);
         this.restart();
         
-        // Theme UI
         document.querySelector('.progress-bar').style.backgroundColor = 
             index === 0 ? '#4ade80' : index === 1 ? '#c084fc' : '#f87171';
     }
@@ -734,39 +737,34 @@ class Game {
         this.obstacles = [];
         const length = 250 + (difficulty * 50); 
         
-        // Patterns are arrays of {t: type, x: offsetX, y: offsetY}
         const patterns = {
             easy: [
                 [{t:'spike', x:0, y:0}],
-                [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}], // Double spike
-                [{t:'block', x:0, y:0}, {t:'spike', x:2, y:0}, {t:'block', x:4, y:0}], // Jump over
-                [{t:'block', x:0, y:0}, {t:'block', x:1, y:1}, {t:'block', x:2, y:2}, {t:'block', x:4, y:1}], // Stairs
+                [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}], 
+                [{t:'block', x:0, y:0}, {t:'spike', x:2, y:0}, {t:'block', x:4, y:0}], 
+                [{t:'block', x:0, y:0}, {t:'block', x:1, y:1}, {t:'block', x:2, y:2}, {t:'block', x:4, y:1}], 
             ],
             medium: [
-                [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}, {t:'spike', x:2, y:0}], // Triple spike
-                [{t:'pad', x:0, y:0}, {t:'block', x:5, y:4}], // High jump
-                [{t:'block', x:0, y:0}, {t:'spike', x:1, y:1}, {t:'block', x:2, y:2}], // Trap
+                [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}, {t:'spike', x:2, y:0}], 
+                [{t:'pad', x:0, y:0}, {t:'block', x:5, y:4}], 
+                [{t:'block', x:0, y:0}, {t:'spike', x:1, y:1}, {t:'block', x:2, y:2}], 
                 [{t:'block', x:0, y:0}, {t:'block', x:1, y:0}, {t:'spike', x:2, y:0}, {t:'block', x:3, y:0}],
             ],
             hard: [
-                 [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}, {t:'spike', x:2, y:0}, {t:'spike', x:3, y:0}], // Quad spike (very hard)
-                 [{t:'pad', x:0, y:0}, {t:'spike', x:4, y:3}, {t:'block', x:6, y:4}], // Pad trap
-                 [{t:'block', x:0, y:0}, {t:'spike', x:1, y:-1}, {t:'block', x:3, y:0}], // Tunnel
-                 [{t:'block', x:0, y:0}, {t:'spike', x:0, y:1}, {t:'block', x:2, y:0}] // Ceiling spike
+                 [{t:'spike', x:0, y:0}, {t:'spike', x:1, y:0}, {t:'spike', x:2, y:0}, {t:'spike', x:3, y:0}], 
+                 [{t:'pad', x:0, y:0}, {t:'spike', x:4, y:3}, {t:'block', x:6, y:4}], 
+                 [{t:'block', x:0, y:0}, {t:'spike', x:1, y:-1}, {t:'block', x:3, y:0}], 
+                 [{t:'block', x:0, y:0}, {t:'spike', x:0, y:1}, {t:'block', x:2, y:0}] 
             ]
         };
 
         const currentPatterns = difficulty === 0 ? patterns.easy : difficulty === 1 ? [...patterns.easy, ...patterns.medium] : [...patterns.medium, ...patterns.hard];
 
-        // Safe Zone
         for (let i = 20; i < length; i++) {
-            // Density increases with difficulty
             const density = 0.3 + (difficulty * 0.1); 
             
             if (Math.random() < density) {
                 const pat = currentPatterns[Math.floor(Math.random() * currentPatterns.length)];
-                
-                // Add pattern
                 pat.forEach(p => {
                     this.obstacles.push({
                         type: p.t,
@@ -776,13 +774,10 @@ class Game {
                         h: TILE_SIZE
                     });
                 });
-                
-                // Advance i to avoid overlapping patterns
                 i += 5; 
             }
         }
         
-        // Finish Line
         this.levelLength = length * TILE_SIZE;
         this.obstacles.push({type: 'finish', x: this.levelLength, y: -TILE_SIZE * 20, w: 100, h: 2000});
     }
@@ -794,8 +789,7 @@ class Game {
         this.state = 'PLAYING';
         this.particles = [];
         this.frameCount = 0;
-        this.camera.x = 0;
-        this.lastTime = 0; // Reset physics clock
+        this.lastTime = 0;
         this.accumulator = 0;
         
         document.getElementById('death-screen').classList.add('hidden');
@@ -814,11 +808,8 @@ class Game {
     update() {
         if (this.state !== 'PLAYING') return;
         
-        // Move Camera & Player
         this.player.x += this.level.speed;
-        this.camera.x = this.player.x + CAMERA_OFFSET_X;
-        
-        const groundY = 0; // Logical ground
+        const groundY = 0; 
         
         this.player.update();
         
@@ -827,7 +818,7 @@ class Game {
             this.player.y = groundY - this.player.h;
             this.player.vy = 0;
             this.player.onGround = true;
-            this.player.jumpCount = 0; // Reset jumps on landing
+            this.player.jumpCount = 0; 
             
             if (this.inputActive) {
                 this.player.jump();
@@ -838,49 +829,39 @@ class Game {
 
         // 2. Obstacle Collision
         let onBlock = false;
-        const hitboxPadding = 12; // TIGHT hitbox
+        const hitboxPadding = 12;
         
-        // Render range optimization
-        const viewRight = this.camera.x + this.screenWidth + 200;
+        // Culling logic adjusted for dynamic screen size
+        const viewRight = this.player.x + (this.screenWidth - this.playerScreenX) + 200;
 
         for (let o of this.obstacles) {
-            // Optimization: skip far obstacles
-            if (o.x < this.player.x - 200 || o.x > viewRight) continue;
+            if (o.x < this.player.x - 300 || o.x > viewRight) continue;
 
-            // Player Hitbox
             const px = this.player.x + hitboxPadding;
             const py = this.player.y + hitboxPadding;
             const pw = this.player.w - (hitboxPadding * 2);
             const ph = this.player.h - (hitboxPadding * 2);
-            
-            // Obstacle Y is relative to floor 0
             const obsY = o.y; 
             
-            // AABB Collision Check
             if (px < o.x + o.w && px + pw > o.x &&
                 py < obsY + o.h && py + ph > obsY) {
                 
                 if (o.type === 'spike') {
-                    // Spikes have smaller hitboxes for fairness
                     const spikePadding = 8;
                     if (px < o.x + o.w - spikePadding && px + pw > o.x + spikePadding &&
                         py < obsY + o.h - spikePadding && py + ph > obsY + spikePadding) {
                         this.die();
                     }
                 } else if (o.type === 'block') {
-                    // Physics Resolution
                     const prevY = this.player.y - this.player.vy;
-                    
-                    // Did we land on top?
                     if (prevY + this.player.h <= obsY + 15 && this.player.vy >= 0) {
                         this.player.y = obsY - this.player.h;
                         this.player.vy = 0;
                         this.player.onGround = true;
-                        this.player.jumpCount = 0; // Reset jumps on block landing
+                        this.player.jumpCount = 0;
                         onBlock = true;
                         if (this.inputActive) this.player.jump();
                     } else {
-                        // Hit side or bottom -> Death
                         this.die();
                     }
                 } else if (o.type === 'pad') {
@@ -895,16 +876,13 @@ class Game {
         
         if (onBlock) this.player.onGround = true;
         
-        // Update Particles
         this.particles.forEach((p, i) => {
             p.update();
             if (p.life <= 0) this.particles.splice(i, 1);
         });
         
-        // Smooth Pulse Decay
         if (this.pulseScale > 1.0) this.pulseScale -= 0.002;
 
-        // Progress
         const prog = Math.min(100, Math.max(0, (this.player.x / this.levelLength) * 100));
         document.getElementById('progress-bar').style.width = `${prog}%`;
     }
@@ -915,7 +893,6 @@ class Game {
         SoundSynth.playDeath();
         stopMusic();
         
-        // Explosion Effect
         this.createParticles(this.player.x + this.player.w/2, this.player.y + this.player.h/2, 60, this.player.color);
         
         document.getElementById('death-progress').innerText = Math.floor((this.player.x / this.levelLength) * 100);
@@ -939,7 +916,6 @@ class Game {
     }
 
     draw() {
-        // Clear Background
         this.ctx.fillStyle = this.level ? this.level.colors.bg : '#111';
         this.ctx.fillRect(0, 0, this.screenWidth, this.screenHeight);
 
@@ -947,46 +923,43 @@ class Game {
 
         this.ctx.save();
         
-        // Center zoom on screen center
         const cx = this.screenWidth / 2;
         const cy = this.screenHeight / 2;
         this.ctx.translate(cx, cy);
         this.ctx.scale(this.pulseScale, this.pulseScale);
         this.ctx.translate(-cx, -cy);
 
-        // Apply Camera Transform
-        // Shift everything left by camera, shift down to floor
-        const renderOffsetX = 250 - this.camera.x; // Player fixed at 250px from left
+        // --- Camera Logic ---
+        // We render so the player is always at 'playerScreenX'
+        // Transform = ScreenPosition - PlayerPosition
+        const renderOffsetX = this.playerScreenX - this.player.x;
         const renderOffsetY = this.floorBaseY;
         
         this.ctx.translate(renderOffsetX, renderOffsetY);
 
-        // Draw Infinite Floor
+        // Infinite Floor
+        // Draw floor from roughly where the screen starts on the left
+        const viewLeftWorld = this.player.x - this.playerScreenX;
         this.ctx.fillStyle = this.level.colors.ground;
-        // Floor rect starts at camera.x - buffer
-        this.ctx.fillRect(this.camera.x - 500, 0, this.screenWidth + 1000, 500);
+        this.ctx.fillRect(viewLeftWorld - 200, 0, this.screenWidth + 400, 500);
         
-        // Floor Glow Line
         this.ctx.shadowBlur = 20;
         this.ctx.shadowColor = this.level.colors.obj;
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(this.camera.x - 500, 0, this.screenWidth + 1000, 2);
+        this.ctx.fillRect(viewLeftWorld - 200, 0, this.screenWidth + 400, 2);
         this.ctx.shadowBlur = 0;
 
-        // Draw Obstacles
-        const viewLeft = this.camera.x - 300;
-        const viewRight = this.camera.x + this.screenWidth + 100;
+        // Obstacles
+        const viewRight = this.player.x + (this.screenWidth - this.playerScreenX) + 100;
 
         this.obstacles.forEach(o => {
-            if (o.x < viewLeft || o.x > viewRight) return;
+            if (o.x < viewLeftWorld - 300 || o.x > viewRight) return;
 
             if (o.type === 'block') {
                 this.ctx.fillStyle = this.level.colors.obj;
                 this.ctx.fillRect(o.x, o.y, o.w, o.h);
-                // Neon Outline
                 this.ctx.strokeStyle = "rgba(255,255,255,0.4)";
                 this.ctx.strokeRect(o.x, o.y, o.w, o.h);
-                // Inner Detail
                 this.ctx.fillStyle = "rgba(0,0,0,0.3)";
                 this.ctx.fillRect(o.x + 5, o.y + 5, o.w - 10, o.h - 10);
             } else if (o.type === 'spike') {
@@ -996,7 +969,6 @@ class Game {
                 this.ctx.lineTo(o.x + o.w/2, o.y);
                 this.ctx.lineTo(o.x + o.w, o.y + o.h);
                 this.ctx.fill();
-                // Spike Outline
                 this.ctx.strokeStyle = "white";
                 this.ctx.lineWidth = 1;
                 this.ctx.stroke();
@@ -1005,7 +977,6 @@ class Game {
                 this.ctx.beginPath();
                 this.ctx.arc(o.x + o.w/2, o.y + o.h - 5, 10, 0, Math.PI*2);
                 this.ctx.fill();
-                // Glow ring
                 this.ctx.beginPath();
                 this.ctx.arc(o.x + o.w/2, o.y + o.h - 5, 14, 0, Math.PI*2);
                 this.ctx.strokeStyle = "orange";
@@ -1017,10 +988,8 @@ class Game {
             }
         });
 
-        // Draw Particles
         this.particles.forEach(p => p.draw(this.ctx));
 
-        // Draw Player
         if (this.state !== 'DEAD') {
             this.player.draw(this.ctx);
         }
@@ -1029,18 +998,14 @@ class Game {
     }
 
     loop(timestamp) {
-        // Fixed Timestep Implementation
-        // Ensures physics run at exactly 60 Hz regardless of screen refresh rate
         if (!this.lastTime) this.lastTime = timestamp;
         const deltaTime = timestamp - this.lastTime;
         this.lastTime = timestamp;
         
         this.accumulator += deltaTime;
-        
-        // Prevent spiral of death (if lagging too much, just skip frames)
         if (this.accumulator > 100) this.accumulator = 100; 
 
-        const fixedStep = 1000 / 60; // 60 FPS
+        const fixedStep = 1000 / 60; 
         
         while (this.accumulator >= fixedStep) {
             this.update(); 
@@ -1055,9 +1020,7 @@ class Game {
 // --- Init ---
 const game = new Game();
 
-// Global Window Functions for HTML UI
 window.startGame = (levelIndex) => {
-    // Audio Context starts suspended in some browsers until interaction
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
